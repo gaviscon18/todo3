@@ -4,7 +4,6 @@ let todoArray = [];
 const listArr = document.getElementById("listArray");
 const delBtn = document.getElementById("deleteAllBtn");
 
-
 addBtn.addEventListener("click", addTodo);
 delBtn.addEventListener("click", delTodos);
 addEventListener("DOMContentLoaded", storageToUI);
@@ -12,26 +11,29 @@ addEventListener("DOMContentLoaded", storageToUI);
 function addTodo(e) {
 
     if (todoInput.value == "") {
-        alert("Lütfen boş değer girmeyiniz!")
+        alert("Lütfen boş değer girmeyiniz!");
     } else {
         const newTodo = {
             todo: todoInput.value,
             done: false
         };
+
+        // localStorage'dan önceki todoArray'i al
+        const storedArray = getTodosFromStorage();
+        todoArray = storedArray || []; // Eğer localStorage boşsa boş dizi kullan
+
         todoArray.push(newTodo);
         addTodoToUI(todoArray);
         addTodoToStorage(todoArray);
     }
 
-    e.preventDefault()
-
+    e.preventDefault();
 }
 
 function addTodoToUI(todoArray) {
     listArr.innerHTML = "";
 
-    for (i = 0; i < todoArray.length; i++) {
-
+    for (let i = 0; i < todoArray.length; i++) {
         const listItem = document.createElement("li");
         listItem.className = "list-group-item d-flex justify-content-between border rounded col-md-8";
         listItem.appendChild(document.createTextNode(todoArray[i].todo));
@@ -39,12 +41,12 @@ function addTodoToUI(todoArray) {
         listItem.setAttribute('data-index', i);
 
         const delIcon = document.createElement("a");
-        delIcon.href = "#"
-        delIcon.className = "delIcon"
+        delIcon.href = "#";
+        delIcon.className = "delIcon";
 
-        const trashIcon = document.createElement("i")
-        trashIcon.className = "bi bi-trash"
-        trashIcon.id = "trashDel"
+        const trashIcon = document.createElement("i");
+        trashIcon.className = "bi bi-trash";
+        trashIcon.id = "trashDel";
         trashIcon.onclick = todoDelete;
 
         delIcon.appendChild(trashIcon);
@@ -57,9 +59,9 @@ function addTodoToUI(todoArray) {
 
 function todoDelete(e) {
     const liElement = e.target.parentElement.parentElement;
+    const index = liElement.getAttribute('data-index');
 
     liElement.remove();
-    const index = liElement.getAttribute('data-index');
     todoArray.splice(index, 1);
 
     const storedArray = JSON.parse(localStorage.getItem('strArray'));
@@ -70,9 +72,7 @@ function todoDelete(e) {
 function delTodos() {
     listArr.innerHTML = "";
     todoArray.length = 0;
-    const storedArray = JSON.parse(localStorage.getItem('strArray'));
-    storedArray.length = 0;
-    localStorage.setItem('strArray', JSON.stringify(storedArray));
+    localStorage.setItem('strArray', JSON.stringify([]));
 }
 
 function addTodoToStorage() {
@@ -81,19 +81,17 @@ function addTodoToStorage() {
 
 function storageToUI() {
     const storedArray = getTodosFromStorage();
-    todoArray = storedArray;
-    addTodoToUI(storedArray);
+    todoArray = storedArray || []; // Eğer localStorage boşsa boş dizi kullan
+    addTodoToUI(todoArray);
 }
 
-function getTodosFromStorage() { // Storagedan Todoları Alma
-
+function getTodosFromStorage() {
     let storedArray;
 
-    if (localStorage.getItem("todos") === null) {
+    if (localStorage.getItem("strArray") === null) {
         storedArray = [];
     } else {
         storedArray = JSON.parse(localStorage.getItem('strArray'));
     }
     return storedArray;
-
 }
